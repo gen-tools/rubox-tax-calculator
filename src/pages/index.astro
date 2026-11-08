@@ -15,7 +15,7 @@ const schema = [
  {'@context':'https://schema.org','@type':'FAQPage',mainEntity:faq.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))}
 ];
 ---
-<Layout title="Robux Tax Calculator: See What You Keep After Roblox's Fee" description="Free Robux tax calculator. Enter a sale price to see what you keep, or enter what you want to keep to see the price to set." schema={schema}>
+<Layout title="Robux Tax Calculator | Calculate Robux After Tax" description="Calculate Robux after the 30% Roblox fee. Find out how much Robux you’ll receive or what price to set to get your target amount." schema={schema}>
 <h1>Robux Tax Calculator</h1>
 <Banner />
 <p><strong>Quick answer:</strong> at the {pct}% fee used in this tool, a 1,000 Robux sale leaves you {keep(1000)} Robux. Enter your own price below, or enter the amount you want to keep to find the price to charge.</p>
