@@ -1,0 +1,56 @@
+---
+import rates from '../data/rates.json';
+const { start = 1000, mode = 'before' } = Astro.props;
+const fee = rates.marketplaceFee, keep = (p) => Math.floor(p * (1 - fee) + 1e-9);
+const need = (k) => { let n = Math.max(0, Math.floor(k / (1 - fee)) - 2); while (keep(n) < k) n++; return n; };
+const after = mode === 'after';
+const p0 = after ? need(start) : start, k0 = after ? start : keep(start);
+const nf = (n) => n.toLocaleString('en-US', { maximumFractionDigits: 2 });
+const b0 = need(k0), cands = [...new Set([b0, Math.ceil(b0 / 5) * 5, Math.ceil(b0 / 10) * 10, Math.ceil(b0 / 50) * 50])].sort((x, y) => x - y);
+const bulkV = [100, 250, 500], bt = bulkV.reduce((s, n) => s + n, 0), bk = bulkV.reduce((s, n) => s + keep(n), 0);
+const dp = 800, dk = keep(dp), dk0 = keep(1000), dxv = rates.devexUsdPerRobux;
+const ico = '<span class="ri"></span>';
+---
+<section class="card tc" id="tax" data-fee={rates.marketplaceFee} data-devex={rates.devexUsdPerRobux} data-mode={mode}>
+<div class="mode"><button type="button" class:list={[{ on: !after }]} data-m="before">Robux before tax</button><button type="button" class:list={[{ on: after }]} data-m="after">Robux after tax</button></div>
+<label for="a" id="lab">{after ? 'Robux you want to keep' : 'Sale price in Robux'}</label>
+<div class="rb"><Fragment set:html={ico} /><input id="a" type="number" inputmode="numeric" min="0" value={start} /></div>
+<div class="res"><Fragment set:html={ico} /><b id="rv">{after ? p0 : k0}</b><small id="rl">{after ? 'price to set' : 'you keep'}</small></div>
+<div class="out" aria-live="polite">{after ? `Set the price to ${p0} Robux to keep ${k0}` : `You keep ${k0} of ${p0} Robux`}</div>
+<div class="flow"><i style={`width:${(1 - fee) * 100}%`}></i></div><div class="small flowl">{nf(p0 - k0)} to the platform · {nf(k0)} to you</div>
+<div class="chips">{[100, 500, 1000, 5000].map((v) => <button type="button" data-v={v}>{v}</button>)}<button type="button" data-c="link">Copy link</button><button type="button" data-c="dc">Copy for Discord</button></div>
+<div class="small usd">≈ ${nf(k0 * dxv)} at the standard DevEx rate</div>
+<div class="tabs x"><button type="button" class="on" data-t="c">Cleaner prices</button><button type="button" data-t="b">Bulk list</button><button type="button" data-t="d">Sale planner</button><button type="button" data-t="s">Settings</button></div>
+<div data-p="c"><div class="sug">{cands.map((x) => <button type="button" data-s={x}>price {nf(x)} → keep {nf(keep(x))}</button>)}</div><div class="small hist"></div></div>
+<div data-p="b" hidden><label for="bl">Item prices, one per line</label><textarea id="bl" rows="4">{"100\n250\n500"}</textarea><div class="out" id="bo">{bulkV.length} items · total {nf(bt)} → you keep {nf(bk)}</div><div class="small" id="br">{bulkV.map((n) => `${nf(n)}→${nf(keep(n))}`).join('  ·  ')}</div></div>
+<div data-p="d" hidden><div class="two"><div><label for="p2">Normal price (Robux)</label><input id="p2" type="number" min="0" value="1000" /></div><div><label for="d">Discount %</label><input id="d" type="number" min="0" max="100" value="20" /></div></div><div class="out" id="do">Sale price {nf(dp)} → you keep {nf(dk)} (vs {nf(dk0)} at full price)</div><div class="small" id="dr">You need about {(dk0 / dk).toFixed(2)}× the sales at this discount to earn the same Robux.</div></div>
+<div data-p="s" hidden><label for="f">Fee % (editable in case Roblox changes it)</label><input id="f" type="number" min="0" max="99" step="0.5" value={fee * 100} /><p class="small">Default matches Roblox's documented 30% fee on passes and developer products. Other item types can differ.</p></div>
+<noscript><form method="get" action="/"><label for="nr">Amount in Robux</label><input id="nr" name="r" type="number" value={start} /><label for="nm">Mode</label><select id="nm" name="m"><option value="before">Robux before tax</option><option value="after">Robux after tax</option></select><p><button type="submit">Calculate</button></p></form></noscript>
+</section>
+<script is:inline>
+(()=>{const el=document.getElementById('tax');if(!el)return;
+const q=s=>el.querySelector(s),dx=+el.dataset.devex;let fee=+el.dataset.fee,mode=el.dataset.mode;
+const f=n=>isFinite(n)?n.toLocaleString(undefined,{maximumFractionDigits:2}):'–';
+const keep=p=>Math.floor(p*(1-fee)+1e-9),need=k=>{let n=Math.max(0,Math.floor(k/(1-fee))-2);while(keep(n)<k)n++;return n};
+const calc=()=>{const v=+q('#a').value||0;return mode==='after'?[v?need(v):0,v]:[v,keep(v)]};
+const render=()=>{const[p,k]=calc(),a=mode==='after';{const rv=q('#rv'),nv=f(a?p:k);if(rv.textContent!==nv){rv.textContent=nv;rv.classList.remove('pulse');void rv.offsetWidth;rv.classList.add('pulse')}}q('#rl').textContent=a?'price to set':'you keep';
+q('.out').textContent=a?`Set the price to ${f(p)} Robux to keep ${f(k)}`:`You keep ${f(k)} of ${f(p)} Robux`;
+q('.flow i').style.width=(p?k/p*100:0)+'%';q('.flowl').textContent=`${f(p-k)} to the platform · ${f(k)} to you`;q('.usd').textContent=`≈ $${f(k*dx)} at the standard DevEx rate`;
+const b=need(k),c=[...new Set([b,Math.ceil(b/5)*5,Math.ceil(b/10)*10,Math.ceil(b/50)*50])].sort((x,y)=>x-y);
+q('.sug').innerHTML=c.map(x=>`<button type="button" data-s="${x}">price ${f(x)} → keep ${f(keep(x))}</button>`).join('')};
+const setMode=m=>{mode=m;el.dataset.mode=m;el.querySelectorAll('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===m));q('#lab').textContent=m==='after'?'Robux you want to keep':'Sale price in Robux';render()};
+const bulk=()=>{const v=q('#bl').value.split(/[\s,]+/).map(Number).filter(n=>n>0),t=v.reduce((s,n)=>s+n,0),k=v.reduce((s,n)=>s+keep(n),0);q('#bo').textContent=`${v.length} items · total ${f(t)} → you keep ${f(k)}`;q('#br').textContent=v.map(n=>`${f(n)}→${f(keep(n))}`).join('  ·  ')};
+const disc=()=>{const p=+q('#p2').value||0,d=Math.min(100,Math.max(0,+q('#d').value||0)),dp=Math.round(p*(1-d/100)),k=keep(dp),k0=keep(p);q('#do').textContent=`Sale price ${f(dp)} → you keep ${f(k)} (vs ${f(k0)} at full price)`;q('#dr').textContent=k>0&&k0>0?`You need about ${(k0/k).toFixed(2)}× the sales at this discount to earn the same Robux.`:''};
+const H=()=>{try{return JSON.parse(localStorage.getItem('rbxh')||'[]')}catch{return[]}};
+const show=()=>{const h=H();q('.hist').innerHTML=h.length?'Recent: '+h.map(x=>`<button type="button" data-v="${x}" class="mini">${f(x)}</button>`).join(' '):''};
+const save=()=>{const v=+q('#a').value;if(!v)return;try{localStorage.setItem('rbxh',JSON.stringify([v,...H().filter(x=>x!==v)].slice(0,5)))}catch{}show()};
+q('#a').oninput=render;q('#a').onchange=save;q('#bl').oninput=bulk;q('#p2').oninput=disc;q('#d').oninput=disc;
+q('#f').oninput=e=>{fee=Math.min(.99,Math.max(0,(+e.target.value||0)/100));render();bulk();disc()};
+el.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{el.querySelectorAll('[data-t]').forEach(x=>x.classList.toggle('on',x===b));el.querySelectorAll('[data-p]').forEach(p=>p.hidden=p.dataset.p!==b.dataset.t)});
+el.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const s=t.dataset;
+if(s.m)setMode(s.m);
+if(s.s){setMode('before');q('#a').value=s.s;render();save()}
+if(s.v){q('#a').value=s.v;render()}
+if(s.c){const[p,k]=calc(),u=location.origin+location.pathname+'?r='+(+q('#a').value||0)+'&m='+mode,d=`**Robux tax**: ${f(p)} Robux sale → keep ${f(k)} (${+(fee*100).toFixed(1)}% fee)`;try{navigator.clipboard.writeText(s.c==='link'?u:d)}catch{}t.textContent='Copied'}});
+render();bulk();disc();show()})();
+</script>

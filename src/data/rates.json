@@ -1,0 +1,40 @@
+{
+  "verifiedAt": "2026-11-08",
+  "_note": "Checked 2026-11-08 against create.roblox.com docs: 30% fee on passes and developer products; standard DevEx 0.0038; U.S. 18+ rate 0.0054 effective 2026-06-08; legacy 0.0035 for older balances.",
+  "marketplaceFee": 0.3,
+  "devexUsdPerRobux": 0.0038,
+  "currencies": {
+    "USD": {
+      "name": "US Dollar",
+      "symbol": "$",
+      "blurb": "The base DevEx view: Robux straight to US dollars, before any currency conversion."
+    },
+    "EUR": {
+      "name": "Euro",
+      "symbol": "€",
+      "blurb": "See your estimated payout in euros, for creators based in the eurozone."
+    },
+    "GBP": {
+      "name": "British Pound",
+      "symbol": "£",
+      "blurb": "A pounds view for UK creators comparing Robux earnings with local pay."
+    },
+    "CAD": {
+      "name": "Canadian Dollar",
+      "symbol": "C$",
+      "blurb": "Canadian dollar estimates for creators budgeting in CAD."
+    },
+    "AUD": {
+      "name": "Australian Dollar",
+      "symbol": "A$",
+      "blurb": "Australian dollar estimates for creators planning around AUD."
+    },
+    "INR": {
+      "name": "Indian Rupee",
+      "symbol": "₹",
+      "blurb": "Rupee estimates for creators in India who think in INR."
+    }
+  },
+  "devexUs18PerRobux": 0.0054,
+  "devexLegacyPerRobux": 0.0035
+}

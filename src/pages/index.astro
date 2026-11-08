@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TaxCalc from '../components/TaxCalc.astro';
+import Faq from '../components/Faq.astro';
+import Banner from '../components/Banner.astro';
+import rates from '../data/rates.json';
+import { home as homeFaq } from '../data/faqs.js';
+const start = Math.max(1, parseInt(Astro.url.searchParams.get('r') || '1000') || 1000);
+const mode = Astro.url.searchParams.get('m') === 'after' ? 'after' : 'before';
+const fee = rates.marketplaceFee, pct = Math.round(fee * 100), keep = (n) => Math.floor(n * (1 - fee) + 1e-9);
+const need = (k) => { let n = Math.max(0, Math.floor(k / (1 - fee)) - 2); while (keep(n) < k) n++; return n; };
+const faq = homeFaq;
+const schema = [
+ {'@context':'https://schema.org','@type':'WebApplication',name:'Robux Tax Calculator',url:'https://robux-tax-calculator.vercel.app/',applicationCategory:'UtilitiesApplication',operatingSystem:'Web',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'}},
+ {'@context':'https://schema.org','@type':'FAQPage',mainEntity:faq.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))}
+];
+---
+<Layout title="Robux Tax Calculator: See What You Keep After Roblox's Fee" description="Free Robux tax calculator. Enter a sale price to see what you keep, or enter what you want to keep to see the price to set." schema={schema}>
+<h1>Robux Tax Calculator</h1>
+<Banner />
+<p><strong>Quick answer:</strong> at the {pct}% fee used in this tool, a 1,000 Robux sale leaves you {keep(1000)} Robux. Enter your own price below, or enter the amount you want to keep to find the price to charge.</p>
+<TaxCalc start={start} mode={mode} />
+<p class="note"><strong>Rate update:</strong> Roblox's U.S. 18+ DevEx rate of 0.0054 took effect June 8, 2026. See the <a href="/rates">DevEx rates and changelog</a>, or compare rates in the <a href="/robux-to-usd-calculator">Robux to USD calculator</a>.</p>
+<h2>Features</h2>
+<ul><li><strong>Two separate modes:</strong> "Robux before tax" shows what you keep from a price, and "Robux after tax" shows the price to set to keep a target.</li><li><strong>Clean-price suggestions:</strong> see round prices (multiples of 5, 10 and 50) that still keep your target.</li><li><strong>Bulk list:</strong> paste many item prices and get a total take-home in one step.</li><li><strong>Sale planner:</strong> see what a discount costs you and how many extra sales you need to break even.</li><li><strong>Editable fee:</strong> change the percentage yourself if Roblox updates it.</li><li><strong>Visual split, DevEx estimate, history and sharing:</strong> a bar showing platform share vs your share, a dollar estimate, your last five prices, and one-tap copy for links or Discord.</li></ul>
+<h2>How to use the calculator</h2>
+<p>Pick a mode above the box. With Robux before tax, enter your item's price and the result shows what you keep. With Robux after tax, enter the Robux you want to end up with and the result shows the price to set. If you want to know what that money is worth in real currency, move on to the <a href="/robux-to-usd-calculator">Robux to USD calculator</a> or one of its currency siblings.</p>
+<h2>Every feature, explained</h2>
+<h3>Robux before tax and Robux after tax</h3>
+<p>The first mode starts from a sale price and shows what you keep. The second starts from the amount you want to keep and shows the price to set. Each mode has its own input, so there is no confusion about which direction you are calculating.</p>
+<h3>Cleaner prices</h3>
+<p>This tab lists the lowest price that meets your target and the next multiples of 5, 10 and 50, each with the amount you would keep, so you can choose a friendly number without falling short.</p>
+<h3>Bulk list</h3>
+<p>Paste several item prices, one per line, and the tool totals what you keep across all of them, rounding each item on its own.</p>
+<h3>Sale planner</h3>
+<p>Enter a normal price and a discount percentage to see the sale price, what you keep, and how many times more sales you need to earn the same as at full price.</p>
+<h3>Editable fee, history and sharing</h3>
+<p>Settings lets you change the fee percentage if Roblox updates it. Your last five prices are remembered in your browser, and the copy buttons create a prefilled link or a Discord-ready message. Without JavaScript, a simple form recalculates on the server.</p>
+<h2>What is the Robux tax?</h2>
+<p>People call it the "Robux tax," but it is not a government tax. It is the share of each creator sale that Roblox keeps, and the rest is what you receive. The exact percentage can differ by item type and can change over time. This site stores it in one configuration value, currently {pct}% for passes and developer products, so every calculator stays consistent when it is updated. Always confirm current terms in the <a href="https://create.roblox.com/docs" rel="noopener" target="_blank">official creator docs</a>. For a longer explanation, read <a href="/guides/what-is-robux-tax">What Is the Robux Tax?</a></p>
+<h2>Why the math works</h2>
+<p>Going forward is simple: your take equals the price multiplied by one minus the fee. At {pct}%, that is the price times {(1 - fee).toFixed(2)}. Going backwards divides instead: the price you need equals your target divided by {(1 - fee).toFixed(2)}, rounded up. Rounding up matters. This calculator assumes your take is rounded down to a whole Robux, so a price that is one Robux too low can leave you one Robux short of your goal. That rounding behavior is an assumption, so test it against a real sale. Our post on <a href="/blog/how-to-price-a-gamepass">how to price a gamepass</a> walks through worked examples.</p>
+<h2>Price and take-home comparison</h2>
+<div class="card" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th align="left">Sale price</th><th align="left">You keep</th><th align="left">Platform share</th></tr></thead><tbody>{[100, 500, 1000, 5000].map((n) => <tr><td>{n.toLocaleString()}</td><td>{keep(n).toLocaleString()}</td><td>{(n - keep(n)).toLocaleString()}</td></tr>)}</tbody></table><p class="small">Calculated at the {pct}% fee configured on this site.</p></div>
+<h2>Works anywhere you do</h2>
+<p>The calculator runs in the browser on Windows, macOS, Linux, Android and iOS, so you can check a price while you work in Roblox Studio on one screen and plan on your phone on another. Nothing is installed and nothing is uploaded.</p>
+<h2>Who it helps</h2>
+<p>Gamepass sellers can set clean prices that deliver a round amount. Developers pricing in-game purchases can compare tiers before launching. Creators planning a cash-out can chain the result into a currency calculator. Teams can share a prefilled link in Discord instead of arguing over mental arithmetic. Anyone who has ever wondered why a sale paid less than the sticker price can see the exact gap.</p>
+<h2>Troubleshooting</h2>
+<p>If your real payout is lower than the result, first check that you used the right fee for the item type, since different sales may be treated differently. Next, remember that DevEx is a separate conversion with its own rate, covered on the <a href="/blog/robux-to-real-money">Robux to real money</a> page. Rounding can also shift totals by a Robux or two across many sales. If the numbers still look wrong, the rate may have changed, so check the official docs and <a href="/contact">let us know</a>.</p>
+<h2>Worked examples</h2>
+<p>Try these in the calculator to see the pattern. Because you divide by {(1 - fee).toFixed(2)}, the price you need is always a bit higher than the amount you want to keep.</p>
+<ul>{[100, 500, 1000].map((k) => <li>To keep <strong>{k.toLocaleString()}</strong> Robux, set the price to <strong>{need(k).toLocaleString()}</strong> and you will keep {keep(need(k)).toLocaleString()}.</li>)}</ul>
+<p>Rounding is why the bulk tab totals each item on its own. Ten sales at 99 Robux leave {keep(99) * 10} Robux if each sale rounds down, compared with {Math.round(990 * (1 - fee))} if you did the math on the combined total. That small gap grows with volume.</p>
+<Faq items={faq} />
+<h2>Related Robux calculators</h2>
+<div class="links"><a href="/robux-tax-chart">Robux tax chart</a><a href="/rates">DevEx rates</a><a href="/robux-to-usd-calculator">Robux to USD</a><a href="/robux-to-eur-calculator">Robux to EUR</a><a href="/robux-to-gbp-calculator">Robux to GBP</a><a href="/robux-to-cad-calculator">Robux to CAD</a><a href="/robux-to-aud-calculator">Robux to AUD</a><a href="/robux-to-inr-calculator">Robux to INR</a><a href="/blog">Blog</a></div>
+</Layout>

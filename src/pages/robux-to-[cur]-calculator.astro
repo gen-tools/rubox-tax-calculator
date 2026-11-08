@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Calc from '../components/Calc.astro';
+import Faq from '../components/Faq.astro';
+import Banner from '../components/Banner.astro';
+import rates from '../data/rates.json';
+import { copy } from '../data/copy.js';
+import { usdLong } from '../data/usd-content.js';
+import { extra } from '../data/faqs.js';
+import { getFx } from '../lib/fx.js';
+const cur = (Astro.params.cur || '').toUpperCase();
+const c = rates.currencies[cur];
+if (!c) return Astro.rewrite('/404');
+const cp = copy[cur];
+const isUsd = cur === 'USD', label = isUsd ? 'Robux to USD' : cur;
+const fx = await getFx(cur);
+const start = Math.max(1, parseInt(Astro.url.searchParams.get('r') || '1000') || 1000);
+const path = `/robux-to-${cur.toLowerCase()}-calculator`;
+const dx = rates.devexUsdPerRobux, n = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+const faq = [...copy[cur].faq, ...(extra[cur] || [])];
+const schema = [
+ {'@context':'https://schema.org','@type':'WebApplication',name:`Robux to ${cur} Calculator`,url:'https://robux-tax-calculator.vercel.app'+path,applicationCategory:'UtilitiesApplication',operatingSystem:'Web',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'}},
+ {'@context':'https://schema.org','@type':'FAQPage',mainEntity:faq.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))}
+];
+const others = Object.keys(rates.currencies).filter((k) => k !== cur);
+---
+<Layout title={isUsd ? 'Robux to USD Calculator: Convert Robux to Dollars (DevEx)' : `Robux to ${cur} Calculator (${c.name})`} description={isUsd ? `Free Robux to USD calculator: convert Earned Robux to US dollars at the standard ${dx} DevEx rate, or enter a dollar goal to see the Robux needed.` : `Convert Robux to ${c.name} with a free calculator. ${c.blurb}`} path={path} schema={schema}>
+<h1>Robux to {cur} Calculator</h1>
+<Banner />
+<p><strong>Quick answer:</strong> {isUsd ? `Use this Robux to USD calculator to turn Earned Robux into US dollars at the standard DevEx rate of ${dx}, or type a dollar goal in the second box to see the Robux you need.` : `${c.blurb} Enter a Robux amount below for an estimate, or type a ${cur} amount in the second box to see how many Robux it takes.`}</p>
+{isUsd && <p class="note"><strong>Rate update:</strong> the U.S. 18+ DevEx rate of {rates.devexUs18PerRobux} took effect June 8, 2026 for certain Earned Robux. Pick it in the rate selector below, and read the <a href="/rates">DevEx rates and changelog</a>.</p>}
+<Calc mode="usd" cur={cur} fx={fx} start={start} />
+<h2>Quick examples</h2>
+<div class="card" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th align="left">Robux</th><th align="left">US dollars</th><th align="left">{cur}</th></tr></thead><tbody>{[1000, 10000, 30000, 50000].map((r) => <tr><td>{n(r)}</td><td>${n(r * dx)}</td><td>{fx ? `${c.symbol}${n(r * dx * fx)}` : 'enter a rate above'}</td></tr>)}</tbody></table><p class="small">Standard DevEx rate of {dx} per Earned Robux{cur === 'USD' ? '' : ', converted at the live exchange rate when available'}.</p></div>
+{isUsd && <Fragment set:html={usdLong(dx)} />}
+<h2>Who this {label} calculator is for</h2>
+<p>{cp.audience}</p>
+{!isUsd && (<Fragment><h2>How the {label} estimate works</h2>
+<ol><li>Your Robux are multiplied by the DevEx rate, which gives a US dollar value.</li>{cur !== 'USD' && <li>That dollar value is multiplied by the dollar-to-{cur} exchange rate.</li>}<li>You can work backwards too: type a {cur} target and the Robux needed fills in automatically.</li></ol>
+<p>Real payouts depend on Roblox's current terms, so check the <a href="https://create.roblox.com/docs" rel="noopener" target="_blank">official docs</a> before relying on any estimate.</p>
+</Fragment>)}
+<h2>Making the estimate more useful</h2>
+<p>{cp.tips}</p>
+<h2>If the number looks off</h2>
+<p>First check that you entered Robux you actually keep, not the sale price, since the platform fee comes off before DevEx. Then confirm the exchange rate shown is current{cur !== 'USD' ? ', or type your own' : ''}. Still unsure? <a href="/contact">Tell us</a> and include the amount you entered.</p>
+<Faq items={faq} />
+<h2>More Robux calculators</h2>
+<div class="links"><a href="/">Robux Tax Calculator</a>{others.map((k) => <a href={`/robux-to-${k.toLowerCase()}-calculator`}>Robux to {k}</a>)}<a href="/guides/what-is-robux-tax">Robux tax guide</a><a href="/blog/robux-to-real-money">Robux to real money</a></div>
+</Layout>

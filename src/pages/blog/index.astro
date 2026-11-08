@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { posts } from '../../data/posts.js';
+---
+<Layout title="Robux Creator Blog: Pricing, DevEx and Earnings Guides" description="Short, practical guides on pricing items, converting Robux to money and avoiding common earnings mistakes." path="/blog">
+<h1>Robux Creator Blog</h1>
+<p>Practical guides that pair with the calculators. Every post links to a tool you can try straight away.</p>
+{posts.map((p) => <div class="card"><h2 style="margin-top:0"><a href={`/blog/${p.slug}`}>{p.title}</a></h2><p>{p.desc}</p></div>)}
+<div class="card"><h2 style="margin-top:0"><a href="/guides/what-is-robux-tax">What Is the Robux Tax?</a></h2><p>A plain-English explanation of the platform fee and why it matters for pricing.</p></div>
+</Layout>

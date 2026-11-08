@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Faq from '../components/Faq.astro';
+import rates from '../data/rates.json';
+const std = rates.devexUsdPerRobux, us = rates.devexUs18PerRobux, old = rates.devexLegacyPerRobux;
+const up = Math.round((us / std - 1) * 100), d = (n) => '$' + (n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const faq = [
+ ['What is the new Roblox DevEx rate?', `Roblox lists a U.S. 18+ rate of ${us} for certain Earned Robux, in addition to the standard ${std}.`],
+ ['When did the U.S. 18+ DevEx rate start?', 'June 8, 2026, according to Roblox\'s documentation.'],
+ ['Does every game qualify for the higher rate?', 'No. Games need qualifying player characters, such as R15-only avatars or eligible custom characters, and Roblox runs ongoing compliance checks.'],
+ ['Which purchases count toward the higher rate?', 'Earned Robux from developer products, passes, subscriptions and private servers bought by U.S. players who verified they are at least 18.'],
+ ['Can I see how much of my balance uses each rate?', 'Roblox says you can view the split between the U.S. 18+ rate and the standard rate when you cash or pay out Earned Robux.']
+];
+const schema = [{'@context':'https://schema.org','@type':'WebPage',name:'Roblox DevEx Rates and Changelog',url:'https://robux-tax-calculator.vercel.app/rates',dateModified:rates.verifiedAt},{'@context':'https://schema.org','@type':'FAQPage',mainEntity:faq.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))}];
+---
+<Layout title="Roblox DevEx Rates (2026): Current Rates and Changelog" description={`Current Roblox DevEx rates, including the U.S. 18+ rate of ${us} that took effect June 8, 2026, with a dated changelog and an eligibility summary.`} path="/rates" schema={schema}>
+<h1>Roblox DevEx Rates and Changelog</h1>
+<p><strong>Quick answer:</strong> the standard DevEx rate is {std} dollars per Earned Robux. Since June 8, 2026, Roblox also lists a higher U.S. 18+ rate of {us} for certain Earned Robux, and older balances use the legacy {old} rate first.</p>
+<h2>Current DevEx rates</h2>
+<div class="card" style="overflow-x:auto"><table><thead><tr><th>Rate</th><th>Per Earned Robux</th><th>Applies to</th><th>30,000 Earned Robux</th></tr></thead><tbody>
+<tr><td>Standard</td><td>{std}</td><td>Most Earned Robux</td><td>{d(30000 * std)}</td></tr>
+<tr><td>U.S. 18+</td><td>{us}</td><td>Certain Earned Robux from eligible U.S. 18+ purchases</td><td>{d(30000 * us)}</td></tr>
+<tr><td>Legacy</td><td>{old}</td><td>Earned Robux from before September 5, 2025, cashed out first</td><td>{d(30000 * old)}</td></tr></tbody></table></div>
+<p>The U.S. 18+ rate is about {up}% higher per Earned Robux than the standard rate. To compare them on your own numbers, use the rate selector in the <a href="/robux-to-usd-calculator">Robux to USD calculator</a>.</p>
+<h2>Changelog</h2>
+<ul><li><strong>June 8, 2026:</strong> the U.S. 18+ DevEx rate of {us} takes effect for certain Earned Robux.</li><li><strong>September 5, 2025:</strong> the standard rate is {std}, and Earned Robux from before that date are cashed out first at {old}.</li></ul>
+<h2>Who qualifies for the U.S. 18+ rate?</h2>
+<p>According to Roblox's documentation, the higher rate applies to Earned Robux from developer products, passes, subscriptions and private servers, bought by U.S. players who have verified their age as at least 18. The game must also meet player-character requirements: players must spend all active playtime as R15 platform avatars, qualifying custom human-form characters or custom non-human-form characters, and R6 avatars cannot be available at any point. Roblox runs background compliance checks, and a game that fails becomes ineligible until the issue is fixed. Group-owned games follow the same rate for payouts and DevEx requests.</p>
+<h2>How to use the rates</h2>
+<ul><li>Start from Earned Robux, not what players spent. The <a href="/">Robux Tax Calculator</a> shows what you keep after the 30% fee on passes and developer products.</li><li>Estimate dollars with the rate that matches your balance, or compare all three in the calculator.</li><li>Read our <a href="/blog/devex-calculator-guide">DevEx calculator guide</a> for requirements and worked examples.</li></ul>
+<p class="small">Last verified against Roblox's documentation on {rates.verifiedAt}: <a href="https://create.roblox.com/docs/production/monetization/developer-exchange" rel="noopener" target="_blank">Developer Exchange</a> and <a href="https://create.roblox.com/docs/production/monetization/18-plus-devex-rate" rel="noopener" target="_blank">U.S. 18+ exchange rate</a>. Rates can change, so confirm there before you cash out.</p>
+<Faq items={faq} />
+<h2>Related calculators</h2>
+<div class="links"><a href="/robux-to-usd-calculator">Robux to USD</a><a href="/robux-to-eur-calculator">Robux to EUR</a><a href="/robux-to-gbp-calculator">Robux to GBP</a><a href="/robux-tax-chart">Robux tax chart</a><a href="/">Robux Tax Calculator</a></div>
+</Layout>

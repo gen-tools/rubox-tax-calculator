@@ -1,0 +1,20 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { posts } from '../../data/posts.js';
+import { blog as blogFaq } from '../../data/faqs.js';
+import Faq from '../../components/Faq.astro';
+const p = posts.find((x) => x.slug === Astro.params.slug);
+if (!p) return Astro.rewrite('/404');
+const others = posts.filter((x) => x !== p);
+const schema = [{'@context':'https://schema.org','@type':'Article',publisher:{'@id':'https://robux-tax-calculator.vercel.app/#org'},headline:p.title,description:p.desc,datePublished:'2026-11-07',dateModified:'2026-11-07'}];
+const faq = blogFaq[p.slug] || [];
+if (faq.length) schema.push({'@context':'https://schema.org','@type':'FAQPage',mainEntity:faq.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))});
+---
+<Layout title={`${p.title} | Robux Tax Calculator`} description={p.desc} path={`/blog/${p.slug}`} schema={schema}>
+<p class="small"><a href="/blog">Blog</a> / {p.title}</p>
+<h1>{p.title}</h1><p class="small">Published 2026-11-07</p>
+{p.body.map((h) => <Fragment set:html={h} />)}
+<Faq items={faq} />
+<h2>Keep reading</h2>
+<div class="links">{others.map((o) => <a href={`/blog/${o.slug}`}>{o.title}</a>)}<a href="/">Robux Tax Calculator</a></div>
+</Layout>

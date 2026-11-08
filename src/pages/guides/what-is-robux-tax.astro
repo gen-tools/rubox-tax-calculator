@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Faq from '../../components/Faq.astro';
+import { guide as faq } from '../../data/faqs.js';
+const schema = [{'@context':'https://schema.org','@type':'Article',publisher:{'@id':'https://robux-tax-calculator.vercel.app/#org'},headline:'What Is the Robux Tax?',datePublished:'2026-11-07',dateModified:'2026-11-07'}];
+schema.push({'@context':'https://schema.org','@type':'FAQPage',mainEntity:faq.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))});
+---
+<Layout title="What Is the Robux Tax? A Plain-English Guide" description="What people mean by the Robux tax, how it changes what you keep, and how to price items around it." path="/guides/what-is-robux-tax" schema={schema}>
+<h1>What Is the Robux Tax?</h1>
+<p>The "Robux tax" is the community's name for the share Roblox keeps when a creator sells something. It is not a government tax. It is a platform fee, and it changes how much of each sale you actually receive.</p>
+<h2>Why it matters for pricing</h2>
+<p>If you want to keep a specific amount, you have to charge more than that amount. Work backwards from your target with the <a href="/">Robux Tax Calculator</a> instead of guessing.</p>
+<h2>From Robux to real money</h2>
+<p>Robux you keep can later be turned into cash through DevEx, which has its own rate. Try the <a href="/robux-to-usd-calculator">Robux to USD calculator</a>, or see your estimate in <a href="/robux-to-eur-calculator">euros</a> or <a href="/robux-to-gbp-calculator">pounds</a>.</p>
+<p class="small">Fees and rates change. Always confirm on Roblox's <a href="https://create.roblox.com/docs" rel="noopener" target="_blank">official creator docs</a>.</p>
+<Faq items={faq} />
+</Layout>

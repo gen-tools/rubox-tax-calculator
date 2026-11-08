@@ -1,0 +1,42 @@
+---
+import rates from '../data/rates.json';
+const { mode, cur = 'USD', fx = null, start = 1000 } = Astro.props;
+const sym = rates.currencies[cur]?.symbol ?? '$';
+const usd = mode === 'usd';
+const rate = rates.devexUsdPerRobux * (fx ?? 1);
+const ready = !usd || fx;
+const net0 = Math.floor(start * (1 - rates.marketplaceFee));
+const b0 = usd ? (ready ? (start * rate).toFixed(2) : '') : net0;
+const out0 = !usd ? `You keep ${net0} of ${start} Robux` : ready ? `${start} Robux ≈ ${sym}${(start * rate).toFixed(2)}` : 'Enter an exchange rate below';
+---
+<form class="calc card" data-mode={mode} data-fee={rates.marketplaceFee} data-devex={rates.devexUsdPerRobux} data-sym={sym} onsubmit="return false">
+  {usd && (<>
+    <label for="rate">DevEx rate</label>
+    <select id="rate" name="rate"><option value={rates.devexUsdPerRobux} selected>Standard ({rates.devexUsdPerRobux})</option><option value={rates.devexUs18PerRobux}>U.S. 18+, since June 8, 2026 ({rates.devexUs18PerRobux})</option><option value={rates.devexLegacyPerRobux}>Legacy, before Sept 5, 2025 ({rates.devexLegacyPerRobux})</option></select>
+  </>)}
+  <label for="a">{usd ? 'Robux' : 'Sale price (Robux)'}</label>
+  <input id="a" name="a" type="number" inputmode="numeric" min="0" value={start} />
+  <label for="b">{usd ? `Estimated ${cur}` : 'You keep (Robux)'}</label>
+  <input id="b" name="b" type="number" inputmode="decimal" min="0" value={b0} />
+  {usd && cur !== 'USD' && (<>
+    <label for="x">Exchange rate (1 USD = ? {cur})</label>
+    <input id="x" name="x" type="number" step="any" min="0" value={fx ?? ''} />
+  </>)}
+  <div class="out" aria-live="polite">{out0}</div>
+  <div class="chips">{[100, 500, 1000, 5000].map((v) => <button type="button" data-v={v}>{v}</button>)}<button type="button" class="share">Copy link</button></div>
+  {!usd && <p class="small">Type either box: set the price to see what you keep, or the amount you want to keep to see the price needed.</p>}
+</form>
+<script is:inline>
+document.querySelectorAll('.calc').forEach(el=>{
+  const m=el.dataset.mode,fee=+el.dataset.fee,dx=+el.dataset.devex,sym=el.dataset.sym;
+  const a=el.a,b=el.b,x=el.x,out=el.querySelector('.out');
+  const f=n=>isFinite(n)?n.toLocaleString(undefined,{maximumFractionDigits:2}):'–';
+  const fx=()=>x?(+x.value||0):1, r=()=>(el.rate?+el.rate.value:dx)*fx();
+  const say=()=>{const v=+a.value;out.textContent=m==='tax'?`You keep ${f(Math.floor(v*(1-fee)))} of ${f(v)} Robux`:(r()?`${f(v)} Robux ≈ ${sym}${f(v*r())}`:'Enter an exchange rate below')};
+  const fwd=()=>{const v=+a.value;b.value=m==='tax'?Math.floor(v*(1-fee)):(r()?(v*r()).toFixed(2):'');say()};
+  const rev=()=>{const v=+b.value;if(m==='tax')a.value=Math.ceil(v/(1-fee));else if(r())a.value=Math.round(v/r());say()};
+  a.addEventListener('input',fwd);b.addEventListener('input',rev);x&&x.addEventListener('input',fwd);el.rate&&el.rate.addEventListener('input',fwd);
+  el.querySelectorAll('[data-v]').forEach(c=>c.onclick=()=>{a.value=c.dataset.v;fwd()});
+  el.querySelector('.share').onclick=e=>{const u=location.origin+location.pathname+'?r='+(+a.value||0);navigator.clipboard&&navigator.clipboard.writeText(u);e.target.textContent='Copied'};
+});
+</script>

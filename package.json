@@ -1,0 +1,1 @@
+{"name":"robux-tools","type":"module","private":true,"scripts":{"dev":"astro dev","build":"astro build","start":"node dist/server/entry.mjs"},"dependencies":{"@astrojs/cloudflare":"^14.4.6","@astrojs/node":"^11.1.11","@astrojs/vercel":"^11.0.20","astro":"^7.4.7"},"devDependencies":{"wrangler":"^4.158.0"}}

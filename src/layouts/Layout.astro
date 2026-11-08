@@ -1,0 +1,83 @@
+---
+const { title, description, path = '/', schema = [], noindex = false } = Astro.props;
+const site = 'https://robux-tax-calculator.vercel.app', name = 'Robux Tax Calculator', url = site + path;
+const segs = path.split('/').filter(Boolean);
+const trail = [['Home', '/']];
+if (segs[0] === 'blog' && segs.length > 1) trail.push(['Blog', '/blog']);
+if (segs.length) trail.push([title.split(/[|:(]/)[0].trim(), path]);
+const base = [
+ { '@context': 'https://schema.org', '@graph': [
+  { '@type': 'WebSite', '@id': site + '/#website', url: site + '/', name, inLanguage: 'en', publisher: { '@id': site + '/#org' } },
+  { '@type': 'Organization', '@id': site + '/#org', name, url: site + '/', logo: { '@type': 'ImageObject', url: site + '/logo-blue.png' } } ] },
+ ...(segs.length ? [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: trail.map(([n, p], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: site + p })) }] : [])
+];
+---
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><script is:inline>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title><meta name="description" content={description}>
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#0a7ee6">
+<link rel="canonical" href={url}><link rel="alternate" hreflang="en" href={url}><link rel="alternate" hreflang="x-default" href={url}><meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow,max-image-preview:large'}>
+<meta property="og:title" content={title}><meta property="og:description" content={description}><meta property="og:type" content="website"><meta property="og:url" content={url}><meta property="og:site_name" content={name}><meta property="og:locale" content="en_US"><meta property="og:image" content={site + '/og-image.png'}><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Robux Tax Calculator"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content={title}><meta name="twitter:description" content={description}><meta name="twitter:image" content={site + '/og-image.png'}>
+{[...base, ...schema].map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+<style is:global>
+:root{--pg:#f3f6fa;--card:#fff;--in:#f8fafc;--fg:#17202b;--mut:#5b6877;--bd:#dfe5ec;--ac:#0a7ee6;--lk:#0a66c2;--ok:#1a9a55;--bad:#e5484d}
+:root[data-theme=dark]{--pg:#0e141b;--card:#161f2b;--in:#0e141b;--fg:#e7edf4;--mut:#93a1b1;--bd:#263241;--ac:#3b9cff;--lk:#6ab8ff}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--pg:#0e141b;--card:#161f2b;--in:#0e141b;--fg:#e7edf4;--mut:#93a1b1;--bd:#263241;--ac:#3b9cff;--lk:#6ab8ff}}
+*{box-sizing:border-box}body{margin:0;font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--pg);color:var(--fg)}
+a{color:var(--lk)}
+
+.logo{display:inline-block;width:28px;height:28px;background:var(--ac);-webkit-mask:url(/logo.png) center/contain no-repeat;mask:url(/logo.png) center/contain no-repeat}
+main{max-width:760px;margin:auto;padding:8px 16px 48px}h1{font-size:clamp(1.7rem,4.5vw,2.2rem);line-height:1.2;margin:24px 0 12px}h2{margin:2rem 0 .5rem;font-size:1.35rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:20px;margin:16px 0}.tc{padding:24px}
+table{width:100%;border-collapse:collapse}th,td{padding:9px 10px;border-bottom:1px solid var(--bd);text-align:left}
+.calc label,.tc label{display:block;font-weight:600;margin:10px 0 4px;font-size:.92rem}
+.calc input,.tc input,.tc textarea{width:100%;font:inherit;font-size:1.25rem;padding:11px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--in);color:var(--fg)}
+input:focus,textarea:focus{outline:2px solid var(--ac);outline-offset:1px}
+.mode{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.mode button{flex:1;min-width:150px;padding:11px 16px;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+.mode button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.rb{display:flex;align-items:center;gap:10px;border:1px solid var(--bd);border-radius:8px;padding:0 14px;background:var(--in)}.rb:focus-within{outline:2px solid var(--ac)}
+.tc .rb input{border:0;background:transparent;font-size:1.9rem;font-weight:700;padding:12px 0}.tc .rb input:focus{outline:none}
+.ri{display:inline-block;width:26px;height:26px;flex:none;background:var(--ac);-webkit-mask:url(/logo.png) center/contain no-repeat;mask:url(/logo.png) center/contain no-repeat}
+.res{display:flex;align-items:center;justify-content:center;gap:10px;font-size:2.2rem;font-weight:800;margin:20px 0 2px}.res .ri{width:34px;height:34px}.res small{font-size:1rem;color:var(--mut);font-weight:600}
+.out{font-weight:600;margin:14px 0 6px;text-align:center}.small{color:var(--mut);font-size:.88rem}
+.flow{height:8px;border-radius:99px;background:color-mix(in srgb,var(--bad) 35%,transparent);overflow:hidden;margin:12px 0 4px}.flow i{display:block;height:100%;background:var(--ok);transition:width .2s}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center}
+.chips button,.sug button,.mini{border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:7px 14px;border-radius:8px;cursor:pointer;font:inherit;font-size:.92rem}.chips button:hover,.sug button:hover{border-color:var(--ac)}.mini{padding:2px 10px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--bd);margin-top:20px;overflow-x:auto}.tabs button{border:0;background:none;padding:9px 14px;color:var(--mut);font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}.tabs button.on{color:var(--ac);box-shadow:inset 0 -2px var(--ac)}
+.sug{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:520px){.two{grid-template-columns:1fr}}
+.links{display:flex;flex-wrap:wrap;gap:8px}.links a{border:1px solid var(--bd);background:var(--card);padding:6px 12px;border-radius:8px;text-decoration:none}
+details{border-bottom:1px solid var(--bd);padding:10px 0}summary{cursor:pointer;font-weight:600}li{margin:6px 0}
+.tt{border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:1.1rem}.tt:hover{border-color:var(--ac)}
+
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes fade{from{opacity:0}to{opacity:1}}@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.07)}100%{transform:scale(1)}}
+main>*:not(h1){animation:rise .45s ease both}main>*:nth-child(n+4){animation-delay:.08s}[data-p]:not([hidden]){animation:fade .25s ease}details[open] summary~*{animation:fade .25s}
+#rv{display:inline-block}.pulse{animation:pop .28s ease}
+body,header,.card,input,textarea,select,.chips button,.sug button,.mode button,.links a,.tt{transition:background-color .25s,border-color .25s,color .25s,transform .15s,box-shadow .2s}
+.chips button:hover,.sug button:hover,.links a:hover,.mode button:hover{transform:translateY(-1px);border-color:var(--ac)}.chips button:active,.sug button:active,.mode button:active{transform:scale(.97)}
+.card:hover{border-color:color-mix(in srgb,var(--ac) 45%,var(--bd))}.logo{transition:transform .25s}header .brand:hover .logo{transform:rotate(-8deg) scale(1.06)}.tt:active{transform:rotate(180deg)}
+a{text-underline-offset:3px}select{width:100%;font:inherit;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--in);color:var(--fg)}h3{font-size:1.05rem;margin:1.2rem 0 .2rem}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}.hd{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--bd)}
+.hw{max-width:1040px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.05rem;color:var(--fg);text-decoration:none;margin-right:auto}
+.nav{display:flex;align-items:center;gap:2px;flex-wrap:wrap}.nav>a,.dd summary{padding:8px 12px;border-radius:8px;color:var(--fg);text-decoration:none;font-size:.93rem;cursor:pointer;list-style:none}
+.nav>a:hover,.dd summary:hover{background:var(--pg)}.nav a[aria-current=page]{color:var(--ac);background:color-mix(in srgb,var(--ac) 10%,transparent)}
+.dd{position:relative}.dd summary::-webkit-details-marker{display:none}.dd summary::after{content:"▾";margin-left:5px;font-size:.75rem}
+.menu{position:absolute;right:0;top:100%;margin-top:6px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:6px;min-width:200px;box-shadow:0 10px 28px rgba(0,0,0,.12);display:flex;flex-direction:column;z-index:20}
+.menu a{padding:8px 12px;border-radius:6px;color:var(--fg);text-decoration:none;font-size:.92rem}.menu a:hover{background:var(--pg)}
+@media(max-width:760px){.hw{flex-wrap:wrap}.nav{order:3;width:100%}.menu{left:0;right:auto}}
+.ft{background:var(--card);border-top:1px solid var(--bd);margin-top:32px}.fw{max-width:1040px;margin:auto;padding:36px 16px 20px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px}
+.fw>div{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.fw h4{margin:0 0 4px;font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+.fw a{color:var(--fg);text-decoration:none;font-size:.93rem}.fw a:hover{color:var(--ac)}.fb p{color:var(--mut);font-size:.9rem;margin:0;max-width:290px}
+.fbar{max-width:1040px;margin:auto;padding:14px 16px 22px;border-top:1px solid var(--bd);color:var(--mut);font-size:.85rem}
+@media(max-width:760px){.fw{grid-template-columns:1fr 1fr}.fb{grid-column:1/-1}}.dd summary.on{color:var(--ac);background:color-mix(in srgb,var(--ac) 10%,transparent)}.menu a[aria-current=page]{color:var(--ac);font-weight:600}.menu{display:none;margin-top:0;background:none;border:0;box-shadow:none;padding:8px 0 0;min-width:0;flex-direction:initial}
+.mi{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:6px;min-width:210px;box-shadow:0 10px 28px rgba(0,0,0,.14);display:flex;flex-direction:column;animation:fade .15s ease}
+.dd:hover .menu,.dd:focus-within .menu,.dd.open .menu{display:block}
+.ddt{display:inline-block;padding:8px 12px;border-radius:8px;color:var(--fg);text-decoration:none;font-size:.93rem;cursor:pointer}.ddt::after{content:"▾";margin-left:5px;font-size:.75rem}
+.ddt:hover,.dd:hover .ddt,.dd:focus-within .ddt{background:var(--pg)}.ddt.on{color:var(--ac);background:color-mix(in srgb,var(--ac) 10%,transparent)}.note{background:color-mix(in srgb,var(--ac) 8%,var(--card));border:1px solid var(--bd);border-left:3px solid var(--ac);border-radius:8px;padding:10px 14px;font-size:.93rem;margin:16px 0}</style></head><body>
+<header class="hd"><div class="hw"><a href="/" class="brand"><span class="logo" aria-hidden="true"></span>Robux Tax Calculator</a><nav class="nav" aria-label="Main"><a href="/" aria-current={path === '/' ? 'page' : undefined}>Tax Calculator</a><div class="dd"><a href="/robux-to-usd-calculator" class={path.startsWith('/robux-to-') ? 'ddt on' : 'ddt'} aria-haspopup="true">DevEx Calculator</a><div class="menu"><div class="mi"><a href="/robux-to-usd-calculator" aria-current={path === '/robux-to-usd-calculator' ? 'page' : undefined}>Robux to USD</a><a href="/robux-to-eur-calculator" aria-current={path === '/robux-to-eur-calculator' ? 'page' : undefined}>Robux to EUR</a><a href="/robux-to-gbp-calculator" aria-current={path === '/robux-to-gbp-calculator' ? 'page' : undefined}>Robux to GBP</a><a href="/robux-to-cad-calculator" aria-current={path === '/robux-to-cad-calculator' ? 'page' : undefined}>Robux to CAD</a><a href="/robux-to-aud-calculator" aria-current={path === '/robux-to-aud-calculator' ? 'page' : undefined}>Robux to AUD</a><a href="/robux-to-inr-calculator" aria-current={path === '/robux-to-inr-calculator' ? 'page' : undefined}>Robux to INR</a></div></div></div><a href="/blog" aria-current={path.startsWith('/blog') ? 'page' : undefined}>Blog</a><a href="/about" aria-current={path === '/about' ? 'page' : undefined}>About</a><a href="/contact" aria-current={path === '/contact' ? 'page' : undefined}>Contact</a></nav><button id="tt" type="button" class="tt" aria-label="Toggle light or dark theme">◐</button></div></header>
+<main><slot /></main>
+<footer class="ft"><div class="fw"><div class="fb"><a href="/" class="brand"><span class="logo" aria-hidden="true"></span>Robux Tax Calculator</a><p>Free calculators and guides that help Roblox creators price items and estimate payouts.</p></div><div><h4>Calculators</h4><a href="/">Robux Tax Calculator</a><a href="/robux-tax-chart">Robux Tax Chart</a><a href="/robux-to-usd-calculator">Robux to USD</a><a href="/robux-to-eur-calculator">Robux to EUR</a><a href="/robux-to-gbp-calculator">Robux to GBP</a><a href="/robux-to-cad-calculator">Robux to CAD</a><a href="/robux-to-aud-calculator">Robux to AUD</a><a href="/robux-to-inr-calculator">Robux to INR</a></div><div><h4>Guides</h4><a href="/rates">DevEx Rates &amp; Changelog</a><a href="/blog/devex-calculator-guide">DevEx Calculator Guide</a><a href="/guides/what-is-robux-tax">What is the Robux tax?</a><a href="/blog/how-to-price-a-gamepass">Pricing a gamepass</a><a href="/blog/robux-to-real-money">Robux to real money</a><a href="/blog/robux-earnings-mistakes">Earnings mistakes</a></div><div><h4>Company</h4><a href="/about">About</a><a href="/contact">Contact</a><a href="/blog">Blog</a><a href="/sitemap.xml">Sitemap</a><a href="https://create.roblox.com/docs" rel="noopener" target="_blank">Roblox creator docs</a></div></div><div class="fbar">© 2026 Robux Tax Calculator</div></footer>
+<script is:inline>document.addEventListener("click",function(e){document.querySelectorAll(".dd.open").forEach(function(d){if(!d.contains(e.target))d.classList.remove("open")})});document.querySelectorAll(".ddt").forEach(function(a){a.addEventListener("click",function(e){if(matchMedia("(hover:none)").matches){e.preventDefault();a.parentNode.classList.toggle("open")}})});document.getElementById("tt").onclick=function(){var d=document.documentElement,c=d.dataset.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"),n=c==="dark"?"light":"dark";d.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}};</script>
+</body></html>

@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Faq from '../components/Faq.astro';
+import rates from '../data/rates.json';
+const fee = rates.marketplaceFee, pct = Math.round(fee * 100);
+const keep = (p) => Math.floor(p * (1 - fee) + 1e-9);
+const need = (k) => { let n = Math.max(0, Math.floor(k / (1 - fee)) - 2); while (keep(n) < k) n++; return n; };
+const nf = (n) => n.toLocaleString('en-US');
+const prices = [10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500, 750, 1000, 1500, 2000, 2500, 5000, 7500, 10000];
+const targets = [50, 100, 250, 500, 1000, 2500, 5000];
+const faq = [
+ ['How much is 1,000 Robux after tax?', `At the ${pct}% fee on passes and developer products, a 1,000 Robux sale leaves you ${nf(keep(1000))} Robux.`],
+ ['How much is 100 Robux after tax?', `A 100 Robux sale leaves you ${keep(100)} Robux.`],
+ ['What price do I set to keep 100 Robux?', `Set the price to ${need(100)}, which leaves exactly ${keep(need(100))}.`],
+ ['Why is my take not exactly 70%?', 'Roblox deals in whole Robux, and this chart rounds each sale down, so odd prices lose a fraction.'],
+ ['Does this chart work for avatar items?', 'No, Marketplace avatar items use different splits, so check the fee table in the creator docs.']
+];
+const schema = [{'@context':'https://schema.org','@type':'WebPage',name:'Robux Tax Chart',url:'https://robux-tax-calculator.vercel.app/robux-tax-chart',dateModified:rates.verifiedAt},{'@context':'https://schema.org','@type':'FAQPage',mainEntity:faq.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))}];
+---
+<Layout title="Robux Tax Chart: How Much Is X Robux After Tax?" description={`Robux tax chart showing what you keep after Roblox's ${pct}% fee on passes and developer products, from 10 to 10,000 Robux, plus the price needed to keep a target.`} path="/robux-tax-chart" schema={schema}>
+<h1>Robux Tax Chart</h1>
+<p><strong>Quick answer:</strong> at the {pct}% fee on passes and developer products, you keep {nf(keep(1000))} Robux from a 1,000 Robux sale. The tables below show the same for common prices, and the price to set if you want to keep a specific amount.</p>
+<h2>What you keep from a sale price</h2>
+<div class="card" style="overflow-x:auto"><table><thead><tr><th>Sale price</th><th>You keep</th><th>Platform share</th></tr></thead><tbody>{prices.map((p) => <tr><td>{nf(p)}</td><td>{nf(keep(p))}</td><td>{nf(p - keep(p))}</td></tr>)}</tbody></table></div>
+<h2>Price needed to keep a target</h2>
+<div class="card" style="overflow-x:auto"><table><thead><tr><th>You want to keep</th><th>Price to set</th><th>You actually keep</th></tr></thead><tbody>{targets.map((k) => <tr><td>{nf(k)}</td><td>{nf(need(k))}</td><td>{nf(keep(need(k)))}</td></tr>)}</tbody></table></div>
+<p>Need a number that is not in the chart? Type it into the <a href="/">Robux Tax Calculator</a>, which works in both directions.</p>
+<h2>How the chart is calculated</h2>
+<p>Each row multiplies the price by {(1 - fee).toFixed(2)} and rounds down to a whole Robux. The second table works backwards: it divides the target by {(1 - fee).toFixed(2)} and rounds up, so the price never leaves you short. The rounding rule is an assumption, so confirm it with a real sale before you build a large price list around it.</p>
+<h2>What the chart does not cover</h2>
+<p>This chart applies to passes and developer products. Avatar items sold on the Marketplace follow different splits that depend on the item type, so check Roblox's <a href="https://create.roblox.com/docs/marketplace/marketplace-fees-and-commissions" rel="noopener" target="_blank">fee documentation</a>. The chart also stops at Robux: DevEx turns Earned Robux into dollars separately, and the <a href="/robux-to-usd-calculator">Robux to USD calculator</a> handles that, including the new <a href="/rates">U.S. 18+ rate</a>.</p>
+<Faq items={faq} />
+<h2>Related tools and guides</h2>
+<div class="links"><a href="/">Robux Tax Calculator</a><a href="/robux-to-usd-calculator">Robux to USD</a><a href="/rates">DevEx rates</a><a href="/blog/how-to-price-a-gamepass">How to price a gamepass</a><a href="/guides/what-is-robux-tax">What is the Robux tax?</a></div>
+</Layout>

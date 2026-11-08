@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+const email = 'hello@example.com'; // TODO: replace with your real address
+---
+<Layout title="Contact Robux Tax Calculator" description="Report a wrong rate, suggest a calculator, or ask a question about Robux Tax Calculator." path="/contact">
+<h1>Contact</h1>
+<p>Found a rate that looks out of date, or want a calculator we do not have yet? Email us at <a href={`mailto:${email}`}>{email}</a>.</p>
+<h2>Helpful details to include</h2>
+<p>Mention the page you were on, the numbers you entered and what you expected to see. For rate corrections, a link to the official Roblox announcement lets us verify and update the config quickly.</p>
+<p class="small">This site is independent and cannot help with Roblox account or payment issues. Please use Roblox's own support for those.</p>
+</Layout>
